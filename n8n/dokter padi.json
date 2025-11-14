@@ -1,0 +1,201 @@
+{
+  "name": "dokter padi",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7dcdf2f1-36d4-4ce2-876b-ae1937c83dce",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "77089e8d-5cea-43e1-9955-fb75da285d47",
+      "name": "Webhook",
+      "webhookId": "7dcdf2f1-36d4-4ce2-876b-ae1937c83dce"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "qwen3-vl:8b",
+          "mode": "list",
+          "cachedResultName": "qwen3-vl:8b"
+        },
+        "text": "Analisis gambar daun padi ini.\nIdentifikasi penyakitnya (khusus nama penyakit dalam inggris). Jika tidak ada, sebut \"Sehat\".\nPilih satu tingkat keparahan dari: \"Ringan\", \"MODERATE\", \"Tinggi\", atau \"N/A\".\nBerikan persentase keyakinan (angka saja).\nJelaskan gejalanya.\nBerikan rekomendasi perawatannya (gunakan bahasa Indonesia).\n contoh jawaban\n\n  Diagnosis: \"Nama Penyakit\",\n  Tingkat Keparahan \"MODERATE\",\n  Persentasi keyakinan (%): 90,\n  Gejala: \"Gejala...\",\n  Perawatan: \"Perawatan...\"\n",
+        "binaryPropertyName": "image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1909aec4-5d51-43fd-8548-513a1329af50",
+      "name": "Analyze image",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        688,
+        16
+      ],
+      "id": "83c5fe77-2968-476a-8ab0-459a008f81dd",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mengambil output teks biasa dari node AI sebelumnya\n// Ganti 'Analyze image' dengan nama node AI Anda jika berbeda\nconst textContent = $('Analyze image').item.json.content;\n\n// Fungsi pembantu untuk mengekstrak nilai menggunakan regex\nfunction extractValue(text, regex) {\n    const match = text.match(regex);\n    // [1] mengambil grup tangkapan pertama dari regex\n    return match && match[1] ? match[1].trim() : null;\n}\n\ntry {\n    // Ekstrak setiap nilai berdasarkan pola teks\n    const diagnosis = extractValue(textContent, /Diagnosis: \\\"(.*?)\\\"/);\n    const tingkatKeparahan = extractValue(textContent, /Tingkat Keparahan \\\"(.*?)\\\"/);\n    const persentasiKeyakinanStr = extractValue(textContent, /Persentasi keyakinan \\(%\\): (\\d+)/);\n    const gejala = extractValue(textContent, /Gejala: \\\"(.*?)\\\"/);\n    const perawatan = extractValue(textContent, /Perawatan: \\\"(.*?)\\\"/);\n\n    // Konversi persentase ke angka\n    const persentasiKeyakinan = persentasiKeyakinanStr ? parseInt(persentasiKeyakinanStr) : null;\n\n    // Buat objek JSON yang rapi\n    const result = {\n        Diagnosis: diagnosis,\n        'Tingkat Keparahan': tingkatKeparahan,\n        'Persentasi keyakinan (%)': persentasiKeyakinan,\n        Gejala: gejala,\n        Perawatan: perawatan\n    };\n\n    // Kembalikan objek JSON ini sebagai output\n    return [{ json: result }];\n\n} catch (error) {\n    // Jika gagal parsing, kembalikan error\n    return [{ json: { error: \"Gagal mem-parsing teks AI\", details: error.message, originalContent: textContent } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8ae1d3b1-51f9-4ffd-887a-a1e2550b21f7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mengambil output teks dari node Gemini\n// PERHATIAN: Pastikan jalur ini cocok dengan screenshot Anda\nconst textContent = $('Analyze an image').item.json.content.parts[0].text; \n\n// Fungsi pembantu untuk mengekstrak nilai menggunakan regex\nfunction extractValue(text, regex) {\n    const match = text.match(regex);\n    // [1] mengambil grup tangkapan pertama dari regex\n    return match && match[1] ? match[1].trim() : null;\n}\n\ntry {\n    // --- Regex yang Disesuaikan untuk Output Gemini ---\n\n    // Diagnosis: \"Leaf Spot\",\n    const diagnosis = extractValue(textContent, /Diagnosis: \\\"(.*?)\\\"/);\n\n    // Tingkat Keparahan \"Ringan\", (Tidak ada titik dua setelah key)\n    const tingkatKeparahan = extractValue(textContent, /Tingkat Keparahan \\\"(.*?)\\\"/);\n\n    // Persentasi keyakinan (%): 70,\n    const persentasiKeyakinanStr = extractValue(textContent, /Persentasi keyakinan \\(%\\): (\\d+)/);\n\n    // Gejala: Bercak kecil berwarna coklat tua... (Value TIDAK diapit kutip ganda)\n    // Kita cari \"Gejala: \" lalu ambil semua sampai \\n berikutnya atau koma.\n    // Atau ambil sampai pattern Perawatan:\n    const gejala = extractValue(textContent, /Gejala: (.*?)(?:\\nPerawatan:|,\\n Persentasi keyakinan)/i); // ambil sampai \"Perawatan:\" atau koma+newline+persentasi keyakinan\n    \n    // Perawatan: Buang daun yang terinfeksi... (Value TIDAK diapit kutip ganda)\n    // Kita cari \"Perawatan: \" lalu ambil semua sampai akhir string\n    const perawatan = extractValue(textContent, /Perawatan: (.*)/);\n\n\n    // Konversi persentase ke angka\n    const persentasiKeyakinan = persentasiKeyakinanStr ? parseInt(persentasiKeyakinanStr, 10) : null;\n\n    // Buat objek JSON yang rapi\n    const result = {\n        Diagnosis: diagnosis,\n        'Tingkat Keparahan': tingkatKeparahan,\n        'Persentasi keyakinan (%)': persentasiKeyakinan,\n        Gejala: gejala,\n        Perawatan: perawatan\n    };\n\n    return [{ json: result }];\n\n} catch (error) {\n    // Lebih banyak detail error jika ada masalah\n    return [{ json: { \n        error: \"Gagal mem-parsing teks Gemini\", \n        details: error.message, \n        originalContent: textContent, \n        stack: error.stack \n    } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        240
+      ],
+      "id": "9c96de4e-0979-4c9f-b17d-be067056f8d4",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        256
+      ],
+      "id": "4945d1fa-4584-4096-a780-ee3a7916b418",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-lite"
+        },
+        "text": "Analisis gambar daun padi ini.\nIdentifikasi penyakitnya (khusus nama penyakit dalam inggris). Jika tidak ada, sebut \"Sehat\".\nPilih satu tingkat keparahan dari: \"Ringan\", \"MODERATE\", \"Tinggi\", atau \"N/A\".\nBerikan persentase keyakinan (angka saja).\nJelaskan gejalanya.\nBerikan rekomendasi perawatannya (gunakan bahasa Indonesia).\n contoh jawaban\n\n  Diagnosis: \"Nama Penyakit\",\n  Tingkat Keparahan \"MODERATE\",\n  Persentasi keyakinan (%): 90,\n  Gejala: \"Gejala...\",\n  Perawatan: \"Perawatan...\"\n",
+        "inputType": "binary",
+        "binaryPropertyName": "image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        96,
+        240
+      ],
+      "id": "a9f38086-c51b-4771-96cb-4ba188987a95",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "zQyDSv6H2jxXUKls",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c9d7f4f2-fd41-4af6-8674-2ee4883b42ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "rd0BaNepmsDluF24",
+  "tags": []
+}
