@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# 🚀 Dokter Padi
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Sebuah aplikasi mobile untuk mendeteksi penyakit pada tanaman padi menggunakan AI.
+<p align="center">
+  <img src="SS/1.jpeg" alt="Gambar 1" width="400"/>
+  <img src="SS/2.jpeg" alt="Gambar 2" width="400"/>
+</p>
 
-## Get started
+## 📝 Deskripsi
 
-1. Install dependencies
+**Dokter Padi** adalah aplikasi mobile yang dikembangkan untuk membantu petani atau pengguna mengidentifikasi penyakit padi secara cepat dan mudah. Aplikasi ini dibuat menggunakan **React Native (Expo Go)**.
 
-   ```bash
-   npm install
-   ```
+Pengguna dapat mengambil gambar daun padi melalui aplikasi, yang kemudian akan dikirim ke backend **n8n (self-hosted)**. Alur kerja n8n akan memproses gambar ini menggunakan model AI (seperti **Gemini 2.5 flash-lite** atau **Qwen3-VL:8b**) untuk menganalisis dan mengidentifikasi potensi penyakit, lalu mengirimkan hasilnya kembali ke aplikasi.
 
-2. Start the app
+## ✨ Fitur-Fitur Utama
 
-   ```bash
-   npx expo start
-   ```
+* **Deteksi Penyakit via Gambar:** Ambil foto atau pilih dari galeri untuk menganalisis penyakit padi.
+* **Integrasi Model AI:** Terhubung ke workflow n8n yang menjalankan model AI canggih untuk analisis.
+* **Respon Cepat:** Memberikan hasil deteksi langsung di aplikasi.
+* **Sederhana dan Ringan:** Dibangun dengan Expo Go untuk kemudahan pengembangan dan testing.
 
-In the output, you'll find options to open the app in a
+## 🔧 Teknologi yang Digunakan
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* **Frontend:** React Native (Expo Go)
+* **Backend & Orchestration:** n8n (Self-hosted)
+* **Model AI/ML:** Gemini 2.5 flash-lite / Qwen3-VL:8b
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🛠️ Instalasi dan Penyiapan
 
-## Get a fresh project
+### 1. Backend (n8n)
 
-When you're ready, run:
+1.  Pastikan instance **n8n self-hosted** Anda sudah berjalan dan dapat diakses.
+2.  Impor dan aktifkan workflow n8n yang telah Anda buat untuk menerima gambar dan memprosesnya dengan model AI.
+3.  Dapatkan URL Webhook dari *trigger node* (node pemicu) di n8n Anda.
+   Berikut adalah gambaran umum alur kerja aplikasi:
+![Diagram Alur Kerja Dokter Padi](SS/workflow.png)
 
-```bash
-npm run reset-project
-```
+### 2. Frontend (React Native - Expo Go)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+1.  **Clone repositori:**
+    ```bash
+    git clone [URL-repositori-anda]
+    cd [nama-folder-proyek]
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Konfigurasi Endpoint n8n:**
+    * Buka file konfigurasi di dalam proyek (misalnya `config.js` atau langsung di *service* API Anda).
+    * Masukkan URL Webhook n8n yang Anda dapatkan dari langkah 1.
+4.  **Jalankan Aplikasi:**
+    ```bash
+    npx expo start
+    ```
+5.  Pindai QR code menggunakan aplikasi Expo Go di ponsel Anda.
 
-## Learn more
+## Usage (Cara Menggunakan)
 
-To learn more about developing your project with Expo, look at the following resources:
+1.  Buka aplikasi di ponsel Anda melalui Expo Go.
+2.  Di halaman utama, tekan tombol "Ambil Gambar" untuk menggunakan kamera atau "Pilih dari Galeri".
+3.  Setelah gambar dipilih, aplikasi akan mengirimkannya ke n8n untuk dianalisis.
+4.  Tunggu beberapa saat, dan hasil deteksi penyakit akan ditampilkan di layar.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
