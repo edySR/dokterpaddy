@@ -18,7 +18,7 @@ const PadiKuScreen = () => {
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null); 
   
   // GANTI URL INI DENGAN URL NGROK ANDA YANG BARU DAN AKTIF
-  const WEBHOOK_URL = 'https://legally-busy-gelding.ngrok-free.app/webhook-test/7dcdf2f1-36d4-4ce2-876b-ae1937c83dce'; 
+  const WEBHOOK_URL = 'https://'; 
 
   const takePicture = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
